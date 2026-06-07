@@ -215,7 +215,13 @@ export function AgentChat() {
     } else {
       setRunStatus("Thinking...")
       try {
-        const response = await simulateAgentResponse(userMessage.content)
+        // Pass conversation history to preserve context
+        const conversationHistory = messages.map(msg => ({
+          role: msg.role as "user" | "assistant",
+          content: msg.content
+        }))
+        
+        const response = await simulateAgentResponse(userMessage.content, conversationHistory)
         setMessages((prev) => [
           ...prev,
           {

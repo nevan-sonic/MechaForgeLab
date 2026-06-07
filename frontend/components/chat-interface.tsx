@@ -92,7 +92,13 @@ export function ChatInterface({ initialMessage, onFirstResponse }: ChatInterface
     setIsLoading(true)
 
     try {
-      const response = await simulateAIResponse(input)
+      // Pass conversation history to preserve context
+      const conversationHistory = messages.map(msg => ({
+        role: msg.role as "user" | "assistant",
+        content: msg.content
+      }))
+      
+      const response = await simulateAIResponse(input, conversationHistory)
       setMessages((prev) => [
         ...prev,
         {
