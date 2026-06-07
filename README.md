@@ -29,7 +29,7 @@
 <div align="center">
 
 <!-- 🎬 REPLACE THIS with your actual YouTube thumbnail URL and video link -->
-[![MechaForge Lab Demo](https://img.youtube.com/vi/-TBdpMjnUQU/maxresdefault.jpg)](https://youtu.be/-TBdpMjnUQU)
+[![MechaForge Lab Demo](https://img.youtube.com/vi/OORkTBaxXZ4/maxresdefault.jpg)](https://youtu.be/OORkTBaxXZ4?si=pOd-SIwyj2tkcMHO)
 
 *▶ Click to watch the full demo on YouTube*
 
