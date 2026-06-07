@@ -1,7 +1,9 @@
 <div align="center">
 
 <!-- LOGO / BANNER -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=200&section=header&text=MechaForge%20Lab&fontSize=60&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Visual%20Meta-Agent%20Builder%20%26%20Local%20Execution%20Studio&descAlignY=55&descSize=18" width="100%"/>
+
+
+![MechaForge Lab](https://capsule-render.vercel.app/api?type=waving&color=gradient&text=MechaForge%20Lab&height=200)
 
 <br/>
 
