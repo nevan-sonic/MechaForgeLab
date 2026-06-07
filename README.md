@@ -296,7 +296,7 @@ Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer" width="100%"/>
 
-**Built with ❤️ by the MechaForge Team**
+**Built with ❤️ by the starlight Team**
 
 ⭐ Star this repo if you find it useful!
 
