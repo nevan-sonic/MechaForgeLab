@@ -12,7 +12,9 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${request.nextUrl.origin}/auth/google/callback`
   const scopes = [
     "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/calendar"
+    "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
   ].join(" ")
 
   // Construct Google OAuth Consent Screen URL

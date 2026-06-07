@@ -420,7 +420,7 @@ async function callOxloAPI(messages: ChatMessage[], apiKey: string, enableTools:
     model: "deepseek-v3.2",
     messages: messages,
     temperature: 0.7,
-    max_tokens: 2048
+    max_tokens: 4096
   }
 
   if (enableTools) {

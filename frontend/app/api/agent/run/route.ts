@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     if (files["requirements.txt"]) {
       fs.writeFileSync(path.join(RUN_DIR, "requirements.txt"), files["requirements.txt"])
     } else {
-      fs.writeFileSync(path.join(RUN_DIR, "requirements.txt"), "openai\nrequests\npython-dotenv\ngoogle-api-python-client\ngoogle-auth\ngoogle-auth-oauthlib\ngoogle-auth-httplib2\n")
+      fs.writeFileSync(path.join(RUN_DIR, "requirements.txt"), "openai\nrequests\npython-dotenv\ngoogle-api-python-client\ngoogle-auth\ngoogle-auth-oauthlib\ngoogle-auth-httplib2\nbeautifulsoup4\n")
     }
 
     // 3. Write environment variables (.env)

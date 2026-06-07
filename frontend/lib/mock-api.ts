@@ -1,5 +1,6 @@
 import { PromptSuggestion } from "@/types"
 import { getApiKey, getProvider } from "./api-key"
+import { DEFAULT_CONFIG } from "./agent-api"
 
 export const mockPrompts: PromptSuggestion[] = [
   {
@@ -172,7 +173,8 @@ async function callOxlo(prompt: string, systemInstruction?: string): Promise<str
     body: JSON.stringify({
       model: "deepseek-v4-flash",
       messages: messages,
-      temperature: 0.2
+      temperature: 0.2,
+      max_tokens: 4096
     })
   })
 
@@ -202,8 +204,49 @@ async function callLLM(prompt: string, systemInstruction?: string): Promise<stri
   }
 }
 
+function extractBalancedJSON(str: string): string {
+  const start = str.indexOf("{")
+  if (start === -1) return str
+  
+  let depth = 0
+  let inString = false
+  let escape = false
+  
+  for (let i = start; i < str.length; i++) {
+    const char = str[i]
+    
+    if (escape) {
+      escape = false
+      continue
+    }
+    
+    if (char === "\\") {
+      escape = true
+      continue
+    }
+    
+    if (char === '"') {
+      inString = !inString
+      continue
+    }
+    
+    if (!inString) {
+      if (char === "{") {
+        depth++
+      } else if (char === "}") {
+        depth--
+        if (depth === 0) {
+          return str.substring(start, i + 1)
+        }
+      }
+    }
+  }
+  return str
+}
+
 function cleanAndParseJSON(jsonString: string): any {
-  let cleaned = jsonString.trim()
+  const balanced = extractBalancedJSON(jsonString)
+  let cleaned = balanced.trim()
 
   // Remove markdown code blocks if present
   cleaned = cleaned.replace(/^```[a-zA-Z]*\s*/, "")
@@ -268,11 +311,24 @@ interface AgentProjectConfig {
 }
 
 Important instructions:
-1. Design a multi-agent architecture if needed (e.g. classifier agent delegating to sequential or loop sub-agents), or a single LLM agent if simple.
-2. For custom tools, write fully functional, robust Python code under the ---TOOL [tool_name]--- block. Do not use quotes or escapes inside the block name.
-3. Any custom tool for Google APIs (Gmail, Calendar, etc.) MUST NOT use 'credentials.json', 'token.pickle', 'InstalledAppFlow', or local server flows. You MUST authenticate the API services using the pre-configured access token from the environment variable: 'from google.oauth2.credentials import Credentials' and 'creds = Credentials(token=os.environ.get("GOOGLE_ACCESS_TOKEN"))'.
-4. Any custom tool for sending emails via the Gmail API must format the email headers (To, Subject) and encode the string using 'base64.urlsafe_b64encode(message.encode("utf-8")).decode("utf-8")', then pass it as '{"raw": base64_string}'. Ensure 'base64' is imported in the imports/dependencies list or in the custom function code.
-5. Ensure the output formats perfectly. Do not output anything outside the formatting tags.
+1. Pre-configured Certified Tools: You MUST use these exact tool names and signatures in your configuration design if the user requests these capabilities. DO NOT rename them or invent different signatures:
+   - \`web_search(query: str) -> str\`: Searches the web for current information (uses automatic DuckDuckGo fallback, NO Tavily or SerpAPI keys needed).
+   - \`scrape_web_page(url: str) -> str\`: Fetches and extracts text content from a web page URL.
+   - \`read_google_sheet(spreadsheet_id: str, range_name: str) -> list\`: Reads values from a Google Sheet.
+   - \`append_to_google_sheet(spreadsheet_id: str, range_name: str, values: list) -> str\`: Appends a list of rows to a Google Sheet.
+   - \`list_drive_files(query: str = None) -> list\`: Lists or searches files in Google Drive.
+   - \`upload_to_drive(filename: str, content: str, mime_type: str = "text/plain") -> str\`: Uploads a text/markdown file to Google Drive.
+2. Design a single flat LLM agent (type: 'llm_agent') containing all necessary tools (e.g. web_search, scrape_web_page, append_to_google_sheet, upload_to_drive, etc.) as the default choice. This is much more robust and less error-prone. ONLY use multi-agent architectures (sequential_agent, parallel_agent, loop_agent) if the user explicitly requests a multi-agent flow, or if the logic absolutely requires delegating distinct tasks.
+3. If you decide to create a multi-agent architecture (using sequential_agent, parallel_agent, or loop_agent):
+   - Every sequential_agent, parallel_agent, or loop_agent MUST NOT have any tools assigned directly to its 'tools' array.
+   - Every sequential_agent, parallel_agent, or loop_agent MUST have a non-empty 'sub_agents' array containing valid agent names, and all those sub-agents must be defined as 'llm_agent' instances in the 'agents' configuration.
+   - Put all the tools on the 'llm_agent' sub-agents. Only 'llm_agent' instances can execute tools.
+4. Every custom or builtin tool defined under 'tools' in the JSON MUST be assigned to the 'tools' array of at least one 'llm_agent' so it is reachable and executable.
+5. Do NOT generate any tools or agents for calendar event scheduling or email sending unless the user's prompt explicitly mentions scheduling, calendar, meetings, or emails. If the user asks for web research, sheets, or drive tools, ONLY generate those tools and a researcher agent. Do not bleed instructions or templates from other agent designs.
+6. For custom tools, write fully functional, robust Python code under the ---TOOL [tool_name]--- block. Do not use quotes or escapes inside the block name.
+7. Any custom tool for Google APIs (Gmail, Calendar, etc.) MUST NOT use 'credentials.json', 'token.pickle', 'InstalledAppFlow', or local server flows. You MUST authenticate the API services using the pre-configured access token from the environment variable: 'from google.oauth2.credentials import Credentials' and 'creds = Credentials(token=os.environ.get("GOOGLE_ACCESS_TOKEN"))'.
+8. Any custom tool for sending emails via the Gmail API must format the email headers (To, Subject) and encode the string using 'base64.urlsafe_b64encode(message.encode("utf-8")).decode("utf-8")', then pass it as '{"raw": base64_string}'. Ensure 'base64' is imported in the imports/dependencies list or in the custom function code.
+9. Ensure the output formats perfectly. Do not output anything outside the formatting tags.
 
 Format your response EXACTLY as follows:
 ---RESPONSE---
@@ -341,6 +397,52 @@ Format your response EXACTLY as follows:
 
           if (parsedConfig.tools && parsedConfig.tools[toolName]) {
             parsedConfig.tools[toolName].function_code = toolCode
+          }
+        }
+      }
+
+      // Normalize common tool names generated by the LLM
+      if (parsedConfig.agents && parsedConfig.tools) {
+        const normalizationMap: Record<string, string> = {
+          "save_to_sheet": "append_to_google_sheet",
+          "write_to_sheet": "append_to_google_sheet",
+          "google_search": "web_search",
+          "tavily_search": "web_search",
+          "tavily_web_search": "web_search",
+          "scrape_page": "scrape_web_page",
+          "read_sheet": "read_google_sheet",
+          "upload_file_to_drive": "upload_to_drive",
+          "upload_to_google_drive": "upload_to_drive"
+        }
+
+        for (const [oldName, newName] of Object.entries(normalizationMap)) {
+          if (parsedConfig.tools[oldName]) {
+            parsedConfig.tools[newName] = parsedConfig.tools[oldName]
+            delete parsedConfig.tools[oldName]
+          }
+          for (const agent of Object.values(parsedConfig.agents) as any[]) {
+            if (agent.tools && Array.isArray(agent.tools)) {
+              agent.tools = agent.tools.map((t: string) => t === oldName ? newName : t)
+            }
+          }
+        }
+      }
+
+      // Override or lock the six core tools to their hardened, working versions
+      const coreToolNames = [
+        "web_search",
+        "scrape_web_page",
+        "read_google_sheet",
+        "append_to_google_sheet",
+        "list_drive_files",
+        "upload_to_drive"
+      ]
+
+      if (parsedConfig.tools) {
+        for (const toolName of coreToolNames) {
+          const defaultTool = DEFAULT_CONFIG.tools[toolName]
+          if (defaultTool && (parsedConfig.tools[toolName] || Object.values(parsedConfig.agents || {}).some((a: any) => a.tools?.includes(toolName)))) {
+            parsedConfig.tools[toolName] = { ...defaultTool }
           }
         }
       }

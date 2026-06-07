@@ -104,9 +104,12 @@ class Agent:
                     
         if sub_agents:
             for sa in sub_agents:
-                self._register_sub_agent(sa)
+                if sa is not None:
+                    self._register_sub_agent(sa)
 
     def _register_sub_agent(self, agent):
+        if agent is None:
+            return
         def delegate_to_agent(**kwargs):
             query = kwargs.get("query") or kwargs.get("prompt") or ""
             return agent.run(query)
@@ -177,9 +180,11 @@ class Agent:
 class SequentialAgent(Agent):
     def __init__(self, name, description, sub_agents):
         super().__init__(name, f"Sequential agent executor for: {name}", description=description)
-        self.sub_agents = sub_agents
+        self.sub_agents = [sa for sa in sub_agents if sa is not None] if sub_agents else []
         
     def run(self, prompt, client=None, model=None, messages=None):
+        if not self.sub_agents:
+            return super().run(prompt, client, model, messages)
         current_input = prompt
         for agent in self.sub_agents:
             current_input = agent.run(current_input, client, model)
@@ -188,9 +193,11 @@ class SequentialAgent(Agent):
 class ParallelAgent(Agent):
     def __init__(self, name, description, sub_agents):
         super().__init__(name, f"Parallel agent executor for: {name}", description=description)
-        self.sub_agents = sub_agents
+        self.sub_agents = [sa for sa in sub_agents if sa is not None] if sub_agents else []
         
     def run(self, prompt, client=None, model=None, messages=None):
+        if not self.sub_agents:
+            return super().run(prompt, client, model, messages)
         results = []
         for agent in self.sub_agents:
             res = agent.run(prompt, client, model)
@@ -200,9 +207,12 @@ class ParallelAgent(Agent):
 class LoopAgent(Agent):
     def __init__(self, name, description, sub_agents):
         super().__init__(name, f"Loop agent executor for: {name}", description=description)
-        self.sub_agent = sub_agents[0] if isinstance(sub_agents, list) else sub_agents
+        self.sub_agents = [sa for sa in sub_agents if sa is not None] if sub_agents else []
+        self.sub_agent = self.sub_agents[0] if self.sub_agents else None
         
     def run(self, prompt, client=None, model=None, messages=None):
+        if not self.sub_agent:
+            return super().run(prompt, client, model, messages)
         current_input = prompt
         for _ in range(3):
             current_input = self.sub_agent.run(current_input, client, model)
@@ -422,6 +432,7 @@ ${sanitizeVarName(name)} = LoopAgent(
     requirements.add("google-auth-oauthlib")
     requirements.add("google-auth-httplib2")
     requirements.add("requests")
+    requirements.add("beautifulsoup4")
     if (config.requirements) {
       config.requirements.forEach((req) => {
         if (!req.startsWith("google-adk")) {
@@ -494,6 +505,10 @@ ${toolDocs}
       "",
       "# Google credentials for tool execution",
       "GOOGLE_ACCESS_TOKEN=ya29.your_google_token_here",
+      "",
+      "# Google Search credentials (optional, fallback to DuckDuckGo search is supported)",
+      "GOOGLE_SEARCH_API_KEY=AIzaSy_your_search_api_key_here",
+      "GOOGLE_SEARCH_ENGINE_ID=cx_your_search_engine_id_here",
       ""
     ]
     return lines.join("\n")
