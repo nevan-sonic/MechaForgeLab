@@ -89,7 +89,7 @@ Building multi-agent systems today is painful:
 
 <div align="center">
 
-![MechaForge Lab Architecture](./architecture.png)
+
 
 </div>
 
