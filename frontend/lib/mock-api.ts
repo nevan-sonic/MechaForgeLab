@@ -50,101 +50,6 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 4, in
   throw new Error("Request failed after maximum retries")
 }
 
-async function callGemini(prompt: string, systemInstruction?: string): Promise<string> {
-  const apiKey = getApiKey("gemini")
-  if (!apiKey) {
-    throw new Error("Gemini API Key is not set. Please click the key icon in the header to enter your Gemini API Key.")
-  }
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
-  
-  const payload: any = {
-    contents: [
-      {
-        role: "user",
-        parts: [{ text: prompt }]
-      }
-    ],
-    generationConfig: {
-      temperature: 0.2
-    }
-  }
-
-  if (systemInstruction) {
-    payload.systemInstruction = {
-      parts: [{ text: systemInstruction }]
-    }
-  }
-
-  const response = await fetchWithRetry(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  })
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    const message = errorData.error?.message || response.statusText
-    throw new Error(`Gemini API Error: ${message}`)
-  }
-
-  const data = await response.json()
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-  if (!text) {
-    throw new Error("Empty response from Gemini API")
-  }
-
-  return text
-}
-
-async function callGroq(prompt: string, systemInstruction?: string): Promise<string> {
-  const apiKey = getApiKey("groq")
-  if (!apiKey) {
-    throw new Error("Groq API Key is not set. Please click the key icon in the header to enter your Groq API Key.")
-  }
-  const url = "https://api.groq.com/openai/v1/chat/completions"
-  
-  const messages: any[] = []
-  if (systemInstruction) {
-    messages.push({
-      role: "system",
-      content: systemInstruction
-    })
-  }
-  messages.push({
-    role: "user",
-    content: prompt
-  })
-
-  const response = await fetchWithRetry(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: messages,
-      temperature: 0.2
-    })
-  })
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    const message = errorData.error?.message || response.statusText
-    throw new Error(`Groq API Error: ${message}`)
-  }
-
-  const data = await response.json()
-  const text = data.choices?.[0]?.message?.content
-  if (!text) {
-    throw new Error("Empty response from Groq API")
-  }
-
-  return text;
-}
-
 async function callOxlo(prompt: string, systemInstruction?: string): Promise<string> {
   const apiKey = getApiKey("oxlo")
   if (!apiKey) {
@@ -194,14 +99,7 @@ async function callOxlo(prompt: string, systemInstruction?: string): Promise<str
 }
 
 async function callLLM(prompt: string, systemInstruction?: string): Promise<string> {
-  const provider = getProvider()
-  if (provider === "oxlo") {
-    return callOxlo(prompt, systemInstruction)
-  } else if (provider === "groq") {
-    return callGroq(prompt, systemInstruction)
-  } else {
-    return callGemini(prompt, systemInstruction)
-  }
+  return callOxlo(prompt, systemInstruction)
 }
 
 function extractBalancedJSON(str: string): string {
@@ -291,7 +189,7 @@ interface AgentConfig {
   name: string;
   type: "llm_agent" | "sequential_agent" | "parallel_agent" | "loop_agent";
   description: string;
-  model?: string; // default to "gemini-2.0-flash" or "llama-3.3-70b-versatile"
+  model?: string; // default to "deepseek-v4-flash"
   instruction?: string; // Detailed system instruction/prompt for the LLM agent.
   tools: string[]; // List of tool names this agent has access to.
   sub_agents: string[]; // List of agent names this agent can call or route to.

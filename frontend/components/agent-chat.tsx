@@ -122,34 +122,14 @@ export function AgentChat() {
         }
 
         // Exposing credentials
-        const activeProvider = getProvider()
-        const geminiApiKey = getApiKey("gemini")
-        const groqApiKey = getApiKey("groq")
         const oxloApiKey = getApiKey("oxlo")
         const googleAccessToken = getCookie("google_access_token")
 
-        // Auto-select/respect execution provider
-        let executionProvider = activeProvider
-        let activeKey = getApiKey(executionProvider)
-
-        if (!activeKey) {
-          if (oxloApiKey) {
-            executionProvider = "oxlo"
-            activeKey = oxloApiKey
-          } else if (groqApiKey) {
-            executionProvider = "groq"
-            activeKey = groqApiKey
-          } else if (geminiApiKey) {
-            executionProvider = "gemini"
-            activeKey = geminiApiKey
-          }
+        if (!oxloApiKey) {
+          throw new Error("No API key available. Click the key icon in the top header and save your Oxlo (DeepSeek) API Key to enable local agent reasoning.")
         }
 
-        if (!activeKey) {
-          throw new Error("No API key available. Click the key icon in the top header and save your Oxlo, Groq, or Gemini API Key to enable local agent reasoning.")
-        }
-
-        setRunStatus(`Launching agent in Python runtime using ${executionProvider.toUpperCase()}...`)
+        setRunStatus(`Launching agent in Python runtime using OXLO...`)
         
         const res = await fetch("/api/agent/run", {
           method: "POST",
@@ -162,10 +142,8 @@ export function AgentChat() {
               "requirements.txt": codeGenerator.generateRequirementsFile(config)
             },
             env: {
-              LLM_PROVIDER: executionProvider,
-              API_KEY: activeKey,
-              GEMINI_API_KEY: geminiApiKey,
-              GROQ_API_KEY: groqApiKey,
+              LLM_PROVIDER: "oxlo",
+              API_KEY: oxloApiKey,
               OXLO_API_KEY: oxloApiKey,
               GOOGLE_ACCESS_TOKEN: googleAccessToken
             }

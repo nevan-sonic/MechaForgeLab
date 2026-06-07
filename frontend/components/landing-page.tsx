@@ -29,21 +29,15 @@ export function LandingPage({ onSubmit, onSignOut }: LandingPageProps) {
   const [input, setInput] = useState("")
   const [showKeyInput, setShowKeyInput] = useState(false)
   const [provider, setProviderVal] = useState<Provider>("oxlo")
-  const [geminiKey, setGeminiKey] = useState("")
-  const [groqKey, setGroqKey] = useState("")
   const [oxloKey, setOxloKey] = useState("")
 
   useEffect(() => {
     setProviderVal(getProvider())
-    setGeminiKey(getApiKey("gemini"))
-    setGroqKey(getApiKey("groq"))
     setOxloKey(getApiKey("oxlo"))
   }, [showKeyInput])
 
   const handleSaveAllKeys = () => {
     setProvider(provider)
-    setApiKey("gemini", geminiKey)
-    setApiKey("groq", groqKey)
     setApiKey("oxlo", oxloKey)
     setShowKeyInput(false)
   }
@@ -105,67 +99,12 @@ export function LandingPage({ onSubmit, onSignOut }: LandingPageProps) {
               
               <div className="space-y-3">
                 <div className="flex flex-col gap-1 text-left">
-                  <span className="text-[10px] text-slate-400 font-semibold tracking-wide">ACTIVE LLM PROVIDER:</span>
-                  <div className="grid grid-cols-3 gap-1 bg-slate-950 p-0.5 rounded-md border border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setProviderVal("oxlo")}
-                      className={`px-2 py-1 text-[10px] font-semibold rounded transition-all duration-200 ${
-                        provider === "oxlo" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      Oxlo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setProviderVal("groq")}
-                      className={`px-2 py-1 text-[10px] font-semibold rounded transition-all duration-200 ${
-                        provider === "groq" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      Groq
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setProviderVal("gemini")}
-                      className={`px-2 py-1 text-[10px] font-semibold rounded transition-all duration-200 ${
-                        provider === "gemini" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      Gemini
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1 text-left">
-                  <span className="text-[10px] text-slate-400 font-semibold tracking-wide">OXLO KEY:</span>
+                  <span className="text-[10px] text-slate-400 font-semibold tracking-wide">OXLO (DEEPSEEK) KEY:</span>
                   <input
                     type="password"
                     value={oxloKey}
                     onChange={(e) => setOxloKey(e.target.value)}
                     placeholder="sk-..."
-                    className="w-full bg-slate-950 border border-slate-800 text-white text-xs rounded px-2.5 py-1.5 focus:outline-none focus:border-blue-500 font-mono"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1 text-left">
-                  <span className="text-[10px] text-slate-400 font-semibold tracking-wide">GROQ KEY:</span>
-                  <input
-                    type="password"
-                    value={groqKey}
-                    onChange={(e) => setGroqKey(e.target.value)}
-                    placeholder="gsk_..."
-                    className="w-full bg-slate-950 border border-slate-800 text-white text-xs rounded px-2.5 py-1.5 focus:outline-none focus:border-blue-500 font-mono"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1 text-left">
-                  <span className="text-[10px] text-slate-400 font-semibold tracking-wide">GEMINI KEY:</span>
-                  <input
-                    type="password"
-                    value={geminiKey}
-                    onChange={(e) => setGeminiKey(e.target.value)}
-                    placeholder="AIzaSy... (Google API Key)"
                     className="w-full bg-slate-950 border border-slate-800 text-white text-xs rounded px-2.5 py-1.5 focus:outline-none focus:border-blue-500 font-mono"
                   />
                 </div>

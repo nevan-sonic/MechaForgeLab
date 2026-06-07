@@ -10,7 +10,7 @@ export const DEFAULT_CONFIG: AgentProjectConfig = {
       name: "service_coordinator",
       type: "llm_agent" as any,
       description: "Customer service coordinator with memory and search capabilities",
-      model: "gemini-2.0-flash-lite-001",
+      model: "deepseek-v4-flash",
       instruction: `You are a helpful customer service representative. 
 
 You have access to:

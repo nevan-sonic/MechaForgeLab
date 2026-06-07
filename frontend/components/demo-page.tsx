@@ -206,7 +206,7 @@ export function DemoPage({ onGetStarted, onSignOut }: DemoPageProps) {
             <Cpu className="w-6 h-6 text-blue-400" />
           </div>
           <span className="text-[11px] font-mono text-slate-400 uppercase tracking-widest">Active Connectors</span>
-          <span className="text-sm font-semibold text-white mt-1">Gemini / Groq / Oxlo</span>
+          <span className="text-sm font-semibold text-white mt-1">Oxlo (DeepSeek)</span>
           <div className="absolute bottom-2 flex gap-1 justify-center w-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -368,14 +368,13 @@ export function DemoPage({ onGetStarted, onSignOut }: DemoPageProps) {
               <div className="w-10 h-10 rounded-xl bg-purple-600/10 flex items-center justify-center border border-purple-500/20 shadow-sm">
                 <Cpu className="w-5 h-5 text-purple-400" />
               </div>
-              <h3 className="text-2xl font-bold text-white">2. Multi-Model Power</h3>
+              <h3 className="text-2xl font-bold text-white">2. DeepSeek Orchestration</h3>
               <p className="text-slate-400 text-xs md:text-sm leading-relaxed max-w-md">
-                Choose the best brain for each node. Use Google Gemini for complex actions, Groq for sub-second responses, or Oxlo for unified access keys. Run hybrid steps seamlessly.
+                Powered by DeepSeek-V4/V3 via Oxlo.ai for high-performance agentic reasoning, visual planning, and model-agnostic schema compilation.
               </p>
               <div className="flex gap-2 text-[10px] font-semibold">
-                <span className="px-2 py-1 bg-slate-900 border border-slate-800 rounded text-blue-400">Gemini 1.5 Pro</span>
-                <span className="px-2 py-1 bg-slate-900 border border-slate-800 rounded text-purple-400">Groq Llama-3</span>
-                <span className="px-2 py-1 bg-slate-900 border border-slate-800 rounded text-emerald-400">Oxlo API</span>
+                <span className="px-2 py-1 bg-slate-900 border border-slate-800 rounded text-emerald-400">DeepSeek-V4</span>
+                <span className="px-2 py-1 bg-slate-900 border border-slate-800 rounded text-blue-400">Oxlo Endpoint</span>
               </div>
             </div>
 
@@ -467,8 +466,8 @@ export function DemoPage({ onGetStarted, onSignOut }: DemoPageProps) {
                     <div className="absolute w-24 h-24 border border-dashed border-purple-500/40 rounded-full animate-spin" style={{ animationDuration: "6s" }} />
                     <Cube3D rotationX={45} rotationY={45} translationZ={0} color="from-purple-500 to-indigo-600" size="w-16 h-16" />
                     
-                    <div className="absolute top-1 right-1 bg-slate-950 px-2 py-0.5 border border-purple-500/30 rounded text-[9px] font-mono">Gemini</div>
-                    <div className="absolute bottom-1 left-1 bg-slate-950 px-2 py-0.5 border border-purple-500/30 rounded text-[9px] font-mono">Groq</div>
+                    <div className="absolute top-1 right-1 bg-slate-950 px-2 py-0.5 border border-purple-500/30 rounded text-[9px] font-mono">DeepSeek</div>
+                    <div className="absolute bottom-1 left-1 bg-slate-950 px-2 py-0.5 border border-purple-500/30 rounded text-[9px] font-mono">Oxlo</div>
                   </div>
                 )}
 
@@ -503,7 +502,7 @@ export function DemoPage({ onGetStarted, onSignOut }: DemoPageProps) {
                     </div>
                     <p className="text-blue-400">class AgentSupport(BaseAgent):</p>
                     <p className="text-slate-300 pl-4">def __init__(self):</p>
-                    <p className="text-purple-400 pl-8">self.model = "gemini-1.5-pro"</p>
+                    <p className="text-purple-400 pl-8">self.model = "deepseek-v4-flash"</p>
                     <p className="text-purple-400 pl-8">self.tools = ["read_file", "search"]</p>
                     <p className="text-emerald-400 pl-4"># Build success in 1.4s</p>
                   </div>
@@ -603,7 +602,7 @@ export function DemoPage({ onGetStarted, onSignOut }: DemoPageProps) {
                           ) : (
                             <span className="w-4 h-4 rounded-full border border-slate-800" />
                           )}
-                          <span className={simStep >= 2 ? "text-slate-200" : "text-slate-600"}>Connecting Gemini model endpoint context...</span>
+                          <span className={simStep >= 2 ? "text-slate-200" : "text-slate-600"}>Connecting Oxlo model endpoint context...</span>
                         </div>
                         {simStep >= 3 && <span className="text-[9px] font-mono text-slate-500">Done</span>}
                       </div>
@@ -667,7 +666,7 @@ export function DemoPage({ onGetStarted, onSignOut }: DemoPageProps) {
                 What LLM providers are supported?
               </AccordionTrigger>
               <AccordionContent className="text-slate-400 text-xs leading-relaxed pb-4">
-                Currently, MechaForge Lab features native configurations for Google Gemini (Adk & Actions), Groq (blazing-fast endpoints), and Oxlo (unified orchestration keys). You can add custom endpoints directly inside your settings panel.
+                Currently, MechaForge Lab is fully optimized to run on Oxlo (utilizing high-speed DeepSeek-V4/V3 model completions). This provides developers with unified access keys and stable, developer-first endpoints.
               </AccordionContent>
             </AccordionItem>
 

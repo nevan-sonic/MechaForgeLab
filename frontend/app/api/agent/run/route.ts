@@ -159,11 +159,8 @@ export async function POST(request: NextRequest) {
 
     // 3. Write environment variables (.env)
     const finalEnv = { ...(env || {}) }
-    const googleToken = finalEnv.GOOGLE_ACCESS_TOKEN || finalEnv.GMAIL_API_KEY || finalEnv.GOOGLE_API_KEY || finalEnv.GOOGLE_CALENDAR_API_KEY || ""
+    const googleToken = finalEnv.GOOGLE_ACCESS_TOKEN || ""
     if (googleToken) {
-      if (!finalEnv.GMAIL_API_KEY) finalEnv.GMAIL_API_KEY = googleToken
-      if (!finalEnv.GOOGLE_API_KEY) finalEnv.GOOGLE_API_KEY = googleToken
-      if (!finalEnv.GOOGLE_CALENDAR_API_KEY) finalEnv.GOOGLE_CALENDAR_API_KEY = googleToken
       if (!finalEnv.GOOGLE_ACCESS_TOKEN) finalEnv.GOOGLE_ACCESS_TOKEN = googleToken
     }
     if (!finalEnv.GOOGLE_CALENDAR_ID) {

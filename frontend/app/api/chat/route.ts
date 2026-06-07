@@ -249,21 +249,7 @@ For emails, extract:
 Return ONLY the JSON, no other text.`
 
   try {
-    let result: { content: string }
-    
-    switch (provider) {
-      case "oxlo":
-        result = await callOxloAPI([{ role: "system", content: systemPrompt }, { role: "user", content: message }], apiKey, false)
-        break
-      case "groq":
-        result = await callGroqAPI([{ role: "system", content: systemPrompt }, { role: "user", content: message }], apiKey, false)
-        break
-      case "gemini":
-        result = await callGeminiAPI([{ role: "system", content: systemPrompt }, { role: "user", content: message }], apiKey, false)
-        break
-      default:
-        return { intent: "general_chat", confidence: 0.5 }
-    }
+    const result = await callOxloAPI([{ role: "system", content: systemPrompt }, { role: "user", content: message }], apiKey, false)
     
     // Parse JSON response
     const jsonMatch = result.content.match(/\{[\s\S]*\}/)
@@ -460,101 +446,6 @@ async function callOxloAPI(messages: ChatMessage[], apiKey: string, enableTools:
   }
 }
 
-// Helper function to call Groq API
-async function callGroqAPI(messages: ChatMessage[], apiKey: string, enableTools: boolean = false): Promise<{ content: string; toolCalls?: any[] }> {
-  console.log("[LLM API] Using provider: Groq")
-  console.log("[LLM API] API Key loaded:", !!apiKey)
-  console.log("[LLM API] Tools enabled:", enableTools)
-
-  const requestBody: any = {
-    model: "llama3-70b-8192",
-    messages: messages,
-    temperature: 0.7,
-    max_tokens: 2048
-  }
-
-  if (enableTools) {
-    requestBody.tools = tools
-    requestBody.tool_choice = "auto"
-  }
-
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify(requestBody)
-  })
-
-  if (!response.ok) {
-    const error = await response.text()
-    console.error("[LLM API] Groq API error:", error)
-    throw new Error(`Groq API error: ${response.status} - ${error}`)
-  }
-
-  const data = await response.json()
-  console.log("[LLM API] Groq API call successful")
-  
-  const message = data.choices[0].message
-  return {
-    content: message.content,
-    toolCalls: message.tool_calls
-  }
-}
-
-// Helper function to call Gemini API
-async function callGeminiAPI(messages: ChatMessage[], apiKey: string, enableTools: boolean = false): Promise<{ content: string; toolCalls?: any[] }> {
-  console.log("[LLM API] Using provider: Gemini")
-  console.log("[LLM API] API Key loaded:", !!apiKey)
-  console.log("[LLM API] Tools enabled:", enableTools)
-
-  // Convert OpenAI-style messages to Gemini format
-  const geminiMessages = messages.map(msg => ({
-    role: msg.role === "assistant" ? "model" : "user",
-    parts: [{ text: msg.content }]
-  }))
-
-  const requestBody: any = {
-    contents: geminiMessages,
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 2048
-    }
-  }
-
-  // Gemini uses a different format for tools (function calling)
-  if (enableTools) {
-    requestBody.tools = [{
-      functionDeclarations: tools.map(tool => tool.function)
-    }]
-  }
-
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(requestBody)
-  })
-
-  if (!response.ok) {
-    const error = await response.text()
-    console.error("[LLM API] Gemini API error:", error)
-    throw new Error(`Gemini API error: ${response.status} - ${error}`)
-  }
-
-  const data = await response.json()
-  console.log("[LLM API] Gemini API call successful")
-  
-  const content = data.candidates[0].content.parts[0].text
-  const toolCalls = data.candidates[0].content.parts.filter((part: any) => part.functionCall)
-  
-  return {
-    content,
-    toolCalls: toolCalls.length > 0 ? toolCalls : undefined
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -691,19 +582,7 @@ export async function POST(request: NextRequest) {
       iteration++
       console.log("[LLM API] LLM call iteration:", iteration)
 
-      switch (provider) {
-        case "oxlo":
-          result = await callOxloAPI(currentMessages, apiKey, enableTools)
-          break
-        case "groq":
-          result = await callGroqAPI(currentMessages, apiKey, enableTools)
-          break
-        case "gemini":
-          result = await callGeminiAPI(currentMessages, apiKey, enableTools)
-          break
-        default:
-          return NextResponse.json({ error: `Unsupported provider: ${provider}` }, { status: 400 })
-      }
+      result = await callOxloAPI(currentMessages, apiKey, enableTools)
 
       // If no tool calls, return the response
       if (!result.toolCalls || result.toolCalls.length === 0) {

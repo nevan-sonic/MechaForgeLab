@@ -11,33 +11,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_client_and_model():
-    provider = os.environ.get("LLM_PROVIDER", "oxlo").lower()
-    api_key = os.environ.get("API_KEY", "")
-    
-    if provider == "oxlo":
-        client = OpenAI(
-            base_url="https://api.oxlo.ai/v1",
-            api_key=api_key or os.environ.get("OXLO_API_KEY", "")
-        )
-        model = os.environ.get("MODEL_NAME", "deepseek-v4-flash")
-    elif provider == "groq":
-        client = OpenAI(
-            base_url="https://api.groq.com/openai/v1",
-            api_key=api_key or os.environ.get("GROQ_API_KEY", "")
-        )
-        model = os.environ.get("MODEL_NAME", "llama-3.3-70b-versatile")
-    elif provider == "gemini":
-        client = OpenAI(
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-            api_key=api_key or os.environ.get("GEMINI_API_KEY", "")
-        )
-        model = os.environ.get("MODEL_NAME", "gemini-2.0-flash")
-    else:
-        client = OpenAI(
-            api_key=api_key or os.environ.get("OPENAI_API_KEY", "")
-        )
-        model = os.environ.get("MODEL_NAME", "gpt-4o-mini")
-        
+    api_key = os.environ.get("API_KEY", "") or os.environ.get("OXLO_API_KEY", "")
+    client = OpenAI(
+        base_url="https://api.oxlo.ai/v1",
+        api_key=api_key
+    )
+    model = os.environ.get("MODEL_NAME", "deepseek-v4-flash")
     return client, model
 
 def function_to_schema(func, custom_description=None):
@@ -500,8 +479,6 @@ ${toolDocs}
       "MODEL_NAME=deepseek-v4-flash",
       "API_KEY=sk_your_oxlo_api_key_here",
       "OXLO_API_KEY=sk_your_oxlo_api_key_here",
-      "GROQ_API_KEY=gsk_your_groq_api_key_here",
-      "GEMINI_API_KEY=AIzaSy_your_gemini_api_key_here",
       "",
       "# Google credentials for tool execution",
       "GOOGLE_ACCESS_TOKEN=ya29.your_google_token_here",
