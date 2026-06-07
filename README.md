@@ -17,6 +17,12 @@ MechaForge Lab solves this by combining a **visual meta-agent compiler** with a 
 *   **Workflow Engineers** automating tasks across search engines, Google Sheets, Drive, and email.
 *   **Enthusiasts** exploring agentic workflows without getting bogged down in boilerplate code.
 
+### ⚖️ Distinction from n8n & Workflow Automation Services
+Unlike n8n, Make, or Zapier, which are deterministic flow charts where data runs linearly from pre-defined node A to node B:
+* **Autonomous Reasoning vs. Pre-defined Rules:** MechaForge Lab builds agents that utilize LLM function calling (tool-use). The agent dynamically decides *which* tool to call, in *what* sequence, and *how* to handle outputs based on the situation, rather than executing a rigid, hardcoded flow.
+* **Agentic Orchestration:** It compiles advanced ADK schemas (Sequential pipeline, Parallel branching, and Loop reiterations) where sub-agents can collaborate and transfer control back and forth.
+* **Local, Standalone Code Generation:** Rather than locking you into a hosted workflow runtime, MechaForge Lab generates a **100% standalone, local Python package** with its own virtual environment loader (`runner.py`) that you can download and execute independently anywhere.
+
 ---
 
 ## 🏗️ System Architecture & Workflow
