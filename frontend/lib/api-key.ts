@@ -59,7 +59,13 @@ export function getApiKey(provider?: Provider): string {
     return stored || ""
   } else {
     const stored = localStorage.getItem(OXLO_KEY)
-    return stored || ""
+    if (stored === "sk-H81trzaRbdf9flVcGgrtEQcNcAz7CaPs6taU6BRtQIm8KWlv" || stored === "sk_aER8TMhMbVsY10fZxPOPULI8AMDoOzvSDsvBWXJLVrA" || stored === "sk_cVerIpSzeT3ejzG-vXAW-ndJjBmiTVnhKlexuW75o9g") {
+      localStorage.setItem(OXLO_KEY, DEFAULT_OXLO_KEY)
+      return DEFAULT_OXLO_KEY
+    }
+    if (stored) return stored
+    localStorage.setItem(OXLO_KEY, DEFAULT_OXLO_KEY)
+    return DEFAULT_OXLO_KEY
   }
 }
 
